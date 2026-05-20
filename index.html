@@ -110,6 +110,9 @@
     <div class="badge">School Library Automation</div>
     <h1>📚 학교도서관 자동화 시스템</h1>
     <p>독서로 DLS의 도서목록을 매 시간 자동으로 Google Drive와 Google Sheets에 업데이트합니다. 크롬과 터미널 창 없이 백그라운드에서 조용히 실행됩니다.</p>
+    <div style="display:inline-block; margin-top:14px; background:rgba(224,62,62,0.07); border:1px solid rgba(224,62,62,0.25); border-radius:8px; padding:8px 18px; font-size:13px; color:#c0392b;">
+      🏫 DLS는 학교 내부망에서만 접근 가능하므로 <strong>학교 PC에서만 실행</strong>됩니다
+    </div>
   </div>
 
   <!-- 작동 흐름 -->
@@ -328,7 +331,9 @@
         <div class="notice-box success" style="margin-bottom:24px;"><span>🟢</span><span><strong>oauth_credentials.json 파일만 있으면 5분이면 끝납니다!</strong> 구글 계정 설정은 다시 하지 않아도 됩니다.</span></div>
         <h3>새 PC에서 할 일 (4단계)</h3>
         <ul class="step-list">
-          <li class="step-item"><div class="step-num">1</div><div class="step-text">이 페이지에서 파일 3개 다운로드 + 보관 중인 <code>oauth_credentials.json</code> 을 바탕화면에 저장</div></li>
+          <li class="step-item"><div class="step-num">1</div><div class="step-text">보관 중인 파일 4개를 새 PC 바탕화면에 복사<br>
+            <code>oauth_credentials.json</code> · <code>library_auto.py</code> · <code>setup.bat</code> · <code>python-installer.exe</code>
+          </div></li>
           <li class="step-item"><div class="step-num">2</div><div class="step-text"><strong>setup.bat</strong> 더블클릭 → Python 설치 + 라이브러리 설치 + 백그라운드 설정 + 스케줄러 등록 자동 완료</div></li>
           <li class="step-item"><div class="step-num">3</div><div class="step-text"><code>library_auto.py</code> 메모장으로 열어서 <strong>독서로 아이디/비밀번호만</strong> 새 학교 계정으로 수정 → <strong>Ctrl+S</strong> 저장</div></li>
           <li class="step-item"><div class="step-num">4</div><div class="step-text">cmd에서 <code>python library_auto.py</code> 실행 → 구글 인증 한번만</div></li>
@@ -359,7 +364,7 @@
       <span style="font-size:28px;">💾</span>
       <div>
         <h2>보관해야 할 파일</h2>
-        <p>인사이동 시 아래 파일만 있으면 어느 PC에서든 5분 안에 설정 완료!</p>
+        <p>최초 설치 후 아래 4개 파일을 USB 또는 개인 클라우드에 보관하세요. 인사이동 시 이 파일들을 가져가면 5분 안에 설정 완료!</p>
       </div>
     </div>
     <div class="usb-files">
@@ -368,15 +373,20 @@
         <span class="fname">oauth_credentials.json</span>
         <span class="fdesc">구글 인증 키 · 절대 필수! · 잃어버리면 재발급 필요</span>
       </div>
-      <div class="usb-file normal">
+      <div class="usb-file critical">
         <span>📝</span>
         <span class="fname">library_auto.py</span>
-        <span class="fdesc">내 정보 입력된 스크립트 · 또는 이 페이지에서 다시 다운로드</span>
+        <span class="fdesc">자동화 스크립트 · 폴더ID·시트ID 저장됨 · 인사이동 시 독서로 아이디/비번만 수정하면 됨</span>
       </div>
-      <div class="usb-file normal" style="opacity:0.6;">
+      <div class="usb-file normal">
+        <span>⚙️</span>
+        <span class="fname">setup.bat</span>
+        <span class="fdesc">자동 설치 프로그램 · 최초 다운로드 후 보관 · 새 PC 설정 시 사용</span>
+      </div>
+      <div class="usb-file normal">
         <span>🐍</span>
         <span class="fname">python-installer.exe</span>
-        <span class="fdesc">선택사항 · 이 페이지에서 언제든 다운로드 가능</span>
+        <span class="fdesc">Python 설치 파일 · 최초 다운로드 후 보관 · 새 PC에 Python 없을 때 사용</span>
       </div>
     </div>
   </div>
