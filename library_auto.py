@@ -52,10 +52,14 @@ if not creds or not creds.valid:
         token.write(creds.to_json())
 print("✅ Google 인증 완료!")
 
-# 크롬 설정
+# 크롬 설정 (백그라운드 실행 - 화면에 보이지 않음)
 options = webdriver.ChromeOptions()
 prefs = {"download.prompt_for_download": False}
 options.add_experimental_option("prefs", prefs)
+options.add_argument("--headless")
+options.add_argument("--no-sandbox")
+options.add_argument("--disable-dev-shm-usage")
+options.add_argument("--window-size=1920,1080")
 
 driver = webdriver.Chrome(
     service=Service(ChromeDriverManager().install()),
