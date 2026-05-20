@@ -280,8 +280,18 @@
           <li class="step-item"><div class="step-num">3</div><div class="step-text"><strong>[API 및 서비스] → [라이브러리]</strong> 에서 <code>Google Drive API</code>, <code>Google Sheets API</code> 각각 검색 후 <strong>[사용]</strong> 클릭</div></li>
           <li class="step-item"><div class="step-num">4</div><div class="step-text"><strong>[OAuth 동의 화면]</strong> → 외부 선택 → 앱 이름 <code>도서관자동화</code> → 이메일 입력 → 저장 → 테스트 사용자에 본인 이메일 추가</div></li>
           <li class="step-item"><div class="step-num">5</div><div class="step-text"><strong>[사용자 인증 정보] → [OAuth 클라이언트 ID]</strong> → 데스크톱 앱 → <strong>[JSON 다운로드]</strong> → 파일명을 <code>oauth_credentials.json</code> 으로 변경 후 바탕화면에 저장</div></li>
-          <li class="step-item"><div class="step-num">6</div><div class="step-text"><a href="https://drive.google.com" target="_blank" style="color:var(--accent)">drive.google.com</a> → 새 폴더 <code>도서관자동화</code> 만들기 → 폴더 열고 주소창에서 <strong>폴더ID</strong> 복사</div></li>
-          <li class="step-item"><div class="step-num">7</div><div class="step-text">폴더 안에서 새 스프레드시트 <code>도서목록</code> 만들기 → 주소창에서 <strong>시트ID</strong> 복사</div></li>
+          <li class="step-item"><div class="step-num">6</div><div class="step-text">
+            <a href="https://drive.google.com" target="_blank" style="color:var(--accent)">drive.google.com</a> 접속 → <strong>[+ 새로 만들기] → [폴더]</strong> 클릭 → 이름: <code>도서관자동화</code> → <strong>[만들기]</strong><br><br>
+            만든 폴더를 더블클릭해서 열기 → 주소창 URL 확인:<br>
+            <code style="display:block; margin:8px 0; padding:8px 12px; background:var(--surface2); border-radius:6px; font-size:12px;">https://drive.google.com/drive/folders/<strong style="color:var(--danger);">1ct-7HNMp612CUCRCT3r7MTkUVe2rHwly</strong></code>
+            <code>folders/</code> 뒤의 긴 문자열이 <strong>폴더ID</strong>입니다. 복사해서 메모해두세요!
+          </div></li>
+          <li class="step-item"><div class="step-num">7</div><div class="step-text">
+            폴더 안에서 <strong>[+ 새로 만들기] → [Google 스프레드시트]</strong> 클릭 → 시트 제목을 <code>도서목록</code> 으로 변경<br><br>
+            주소창 URL 확인:<br>
+            <code style="display:block; margin:8px 0; padding:8px 12px; background:var(--surface2); border-radius:6px; font-size:12px;">https://docs.google.com/spreadsheets/d/<strong style="color:var(--danger);">1C2zISnzGyrxeOCHih5o-dW423ralnI1lvqGtBwwJWNk</strong>/edit</code>
+            <code>/d/</code> 와 <code>/edit</code> 사이의 긴 문자열이 <strong>시트ID</strong>입니다. 복사해서 메모해두세요!
+          </div></li>
         </ul>
 
         <hr class="divider">
