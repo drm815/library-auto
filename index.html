@@ -1,0 +1,854 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>📚 학교도서관 자동화 시스템</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f4f6fb;
+    --surface: #ffffff;
+    --surface2: #eef1f8;
+    --border: #dde2ef;
+    --accent: #3b6ff0;
+    --accent2: #0ea87a;
+    --accent3: #d97b00;
+    --text: #1a1f36;
+    --text2: #6b7499;
+    --danger: #e03e3e;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Noto Sans KR', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* 배경 효과 */
+  body::before {
+    content: '';
+    position: fixed;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(ellipse at 20% 20%, rgba(59,111,240,0.06) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 80%, rgba(14,168,122,0.04) 0%, transparent 50%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .container {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 60px 24px;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* 헤더 */
+  .header {
+    text-align: center;
+    margin-bottom: 64px;
+    animation: fadeUp 0.6s ease both;
+  }
+
+  .header .badge {
+    display: inline-block;
+    background: rgba(59,111,240,0.1);
+    border: 1px solid rgba(79,142,247,0.3);
+    color: var(--accent);
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    padding: 6px 16px;
+    border-radius: 100px;
+    margin-bottom: 20px;
+    text-transform: uppercase;
+  }
+
+  .header h1 {
+    font-size: clamp(28px, 5vw, 42px);
+    font-weight: 700;
+    line-height: 1.2;
+    margin-bottom: 16px;
+    background: linear-gradient(135deg, #1a1f36 0%, #3b6ff0 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .header p {
+    color: var(--text2);
+    font-size: 15px;
+    line-height: 1.7;
+    max-width: 520px;
+    margin: 0 auto;
+  }
+
+  /* 작동 방식 */
+  .flow {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 32px;
+    margin-bottom: 48px;
+    animation: fadeUp 0.6s ease 0.1s both;
+  }
+
+  .flow h2 {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text2);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 24px;
+  }
+
+  .flow-steps {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .flow-step {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 16px;
+    flex: 1;
+    min-width: 140px;
+  }
+
+  .flow-step .icon {
+    font-size: 20px;
+    flex-shrink: 0;
+  }
+
+  .flow-step .text {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text);
+    line-height: 1.3;
+  }
+
+  .flow-step .sub {
+    font-size: 11px;
+    color: var(--text2);
+    margin-top: 2px;
+  }
+
+  .flow-arrow {
+    color: var(--text2);
+    font-size: 18px;
+    flex-shrink: 0;
+  }
+
+  /* 섹션 */
+  .section {
+    margin-bottom: 48px;
+    animation: fadeUp 0.6s ease 0.2s both;
+  }
+
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+
+  .section-num {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: var(--accent);
+    color: #fff;
+    font-size: 14px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .section-num.green { background: var(--accent2); color: #fff; }
+  .section-num.yellow { background: var(--accent3); color: #fff; }
+
+  .section-title {
+    font-size: 18px;
+    font-weight: 700;
+  }
+
+  .section-desc {
+    font-size: 13px;
+    color: var(--text2);
+    margin-top: 2px;
+  }
+
+  /* 다운로드 카드 */
+  .download-grid {
+    display: grid;
+    gap: 12px;
+  }
+
+  .download-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px 24px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    transition: border-color 0.2s, transform 0.2s;
+    cursor: pointer;
+    text-decoration: none;
+  }
+
+  .download-card:hover {
+    border-color: var(--accent);
+    transform: translateY(-1px);
+  }
+
+  .download-card.primary { border-color: rgba(59,111,240,0.3); }
+  .download-card.secondary { border-color: rgba(14,168,122,0.2); }
+  .download-card.tertiary { border-color: rgba(217,123,0,0.2); }
+
+  .file-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    flex-shrink: 0;
+  }
+
+  .file-icon.blue { background: rgba(59,111,240,0.1); }
+  .file-icon.green { background: rgba(14,168,122,0.1); }
+  .file-icon.yellow { background: rgba(217,123,0,0.1); }
+
+  .file-info { flex: 1; }
+
+  .file-name {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 4px;
+  }
+
+  .file-desc {
+    font-size: 12px;
+    color: var(--text2);
+    line-height: 1.5;
+  }
+
+  .file-tag {
+    font-size: 11px;
+    font-weight: 500;
+    padding: 4px 10px;
+    border-radius: 100px;
+    flex-shrink: 0;
+  }
+
+  .tag-must { background: rgba(224,62,62,0.08); color: var(--danger); border: 1px solid rgba(224,62,62,0.25); }
+  .tag-once { background: rgba(59,111,240,0.1); color: var(--accent); border: 1px solid rgba(79,142,247,0.3); }
+  .tag-reuse { background: rgba(14,168,122,0.1); color: var(--accent2); border: 1px solid rgba(56,217,169,0.3); }
+
+  .download-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--text);
+    font-size: 12px;
+    font-weight: 500;
+    padding: 8px 14px;
+    border-radius: 8px;
+    flex-shrink: 0;
+    transition: background 0.2s, border-color 0.2s;
+    text-decoration: none;
+  }
+
+  .download-btn:hover {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #fff;
+  }
+
+  /* 매뉴얼 섹션 */
+  .manual-section {
+    animation: fadeUp 0.6s ease 0.3s both;
+  }
+
+  .manual-tabs {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 20px;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 0;
+  }
+
+  .tab-btn {
+    background: none;
+    border: none;
+    color: var(--text2);
+    font-size: 14px;
+    font-weight: 500;
+    padding: 10px 16px;
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1px;
+    transition: color 0.2s, border-color 0.2s;
+    font-family: 'Noto Sans KR', sans-serif;
+  }
+
+  .tab-btn.active {
+    color: var(--accent);
+    border-bottom-color: var(--accent);
+  }
+
+  .tab-content { display: none; }
+  .tab-content.active { display: block; }
+
+  /* 매뉴얼 내용 */
+  .manual-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 32px;
+  }
+
+  .manual-card h3 {
+    font-size: 16px;
+    font-weight: 700;
+    margin-bottom: 20px;
+    color: var(--accent);
+  }
+
+  .step-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .step-item {
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+  }
+
+  .step-num {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--text2);
+    font-size: 12px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+
+  .step-text {
+    font-size: 14px;
+    line-height: 1.6;
+    color: var(--text);
+  }
+
+  .step-text strong { color: var(--accent3); }
+  .step-text code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    padding: 2px 8px;
+    border-radius: 4px;
+    color: var(--accent2);
+  }
+
+  .notice-box {
+    border-radius: 10px;
+    padding: 14px 18px;
+    font-size: 13px;
+    line-height: 1.6;
+    margin: 16px 0;
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+  }
+
+  .notice-box.warn { background: rgba(224,62,62,0.06); border: 1px solid rgba(224,62,62,0.2); color: #c0392b; }
+  .notice-box.tip { background: rgba(59,111,240,0.07); border: 1px solid rgba(59,111,240,0.2); color: #2c5bb8; }
+  .notice-box.success { background: rgba(14,168,122,0.07); border: 1px solid rgba(14,168,122,0.2); color: #0a6b50; }
+
+  .divider {
+    border: none;
+    border-top: 1px solid var(--border);
+    margin: 24px 0;
+  }
+
+  /* USB 보관 */
+  .usb-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 28px 32px;
+    margin-bottom: 48px;
+    animation: fadeUp 0.6s ease 0.35s both;
+  }
+
+  .usb-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+
+  .usb-header h2 { font-size: 16px; font-weight: 700; }
+  .usb-header p { font-size: 13px; color: var(--text2); margin-top: 2px; }
+
+  .usb-files {
+    display: grid;
+    gap: 8px;
+  }
+
+  .usb-file {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 14px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-size: 13px;
+  }
+
+  .usb-file .fname {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--accent2);
+    flex: 1;
+  }
+
+  .usb-file .fdesc { color: var(--text2); font-size: 12px; }
+
+  /* 푸터 */
+  .footer {
+    text-align: center;
+    color: var(--text2);
+    font-size: 13px;
+    padding-top: 48px;
+    border-top: 1px solid var(--border);
+    animation: fadeUp 0.6s ease 0.4s both;
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @media (max-width: 600px) {
+    .flow-steps { flex-direction: column; }
+    .flow-arrow { transform: rotate(90deg); }
+    .download-card { flex-wrap: wrap; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <!-- 헤더 -->
+  <div class="header">
+    <div class="badge">School Library Automation</div>
+    <h1>📚 학교도서관 자동화 시스템</h1>
+    <p>독서로 DLS의 도서목록을 매 시간 자동으로 Google Drive와 Google Sheets에 업데이트합니다.</p>
+  </div>
+
+  <!-- 작동 흐름 -->
+  <div class="flow">
+    <h2>작동 방식</h2>
+    <div class="flow-steps">
+      <div class="flow-step">
+        <div class="icon">🔐</div>
+        <div>
+          <div class="text">독서로 DLS</div>
+          <div class="sub">자동 로그인</div>
+        </div>
+      </div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step">
+        <div class="icon">📥</div>
+        <div>
+          <div class="text">도서목록 다운로드</div>
+          <div class="sub">엑셀 자동 저장</div>
+        </div>
+      </div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step">
+        <div class="icon">☁️</div>
+        <div>
+          <div class="text">Google Drive</div>
+          <div class="sub">자동 업로드</div>
+        </div>
+      </div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step">
+        <div class="icon">📊</div>
+        <div>
+          <div class="text">Google Sheets</div>
+          <div class="sub">데이터 자동 갱신</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 시작 전 준비사항 -->
+  <div class="section" style="animation-delay:0.15s;">
+    <div class="section-header">
+      <div class="section-num yellow">!</div>
+      <div>
+        <div class="section-title">시작 전 준비사항</div>
+        <div class="section-desc">설치 전 반드시 확인하세요</div>
+      </div>
+    </div>
+    <div style="background:var(--surface); border:1px solid rgba(217,123,0,0.3); border-radius:12px; padding:24px 28px; display:flex; flex-direction:column; gap:14px;">
+      <div style="display:flex; gap:12px; align-items:flex-start;">
+        <span style="font-size:20px; flex-shrink:0;">🔐</span>
+        <div>
+          <div style="font-size:14px; font-weight:600; margin-bottom:4px;">독서로 아이디/비밀번호 계정 필요</div>
+          <div style="font-size:13px; color:var(--text2); line-height:1.6;">인증서 로그인 계정만 있다면 DLS 내에서 별도 아이디 계정을 직접 생성하세요. 인증서 로그인으로는 자동화가 작동하지 않습니다.</div>
+        </div>
+      </div>
+      <div style="border-top:1px solid var(--border); padding-top:14px; display:flex; gap:12px; align-items:flex-start;">
+        <span style="font-size:20px; flex-shrink:0;">🔑</span>
+        <div>
+          <div style="font-size:14px; font-weight:600; margin-bottom:4px;">소장자료관리 접근 권한 확인</div>
+          <div style="font-size:13px; color:var(--text2); line-height:1.6;">생성한 아이디 계정에 <strong style="color:var(--accent3);">소장자료관리</strong> 접근 권한이 있어야 합니다. 권한이 없으면 도서목록 다운로드가 되지 않습니다.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 다운로드 섹션 -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-num">2</div>
+      <div>
+        <div class="section-title">파일 다운로드</div>
+        <div class="section-desc">아래 파일들을 모두 같은 폴더(바탕화면)에 저장하세요</div>
+      </div>
+    </div>
+
+    <div class="download-grid">
+      <a href="python-installer.exe" download class="download-card primary">
+        <div class="file-icon blue">🐍</div>
+        <div class="file-info">
+          <div class="file-name">python-installer.exe</div>
+          <div class="file-desc">Python 설치 파일 · setup.bat이 자동으로 실행합니다</div>
+        </div>
+        <span class="file-tag tag-once">최초 1회</span>
+        <a href="python-installer.exe" download class="download-btn">⬇ 다운로드</a>
+      </a>
+
+      <a href="setup.bat" download class="download-card primary">
+        <div class="file-icon blue">⚙️</div>
+        <div class="file-info">
+          <div class="file-name">setup.bat</div>
+          <div class="file-desc">자동 설치 프로그램 · 더블클릭 하나로 모든 설치 완료</div>
+        </div>
+        <span class="file-tag tag-once">최초 1회</span>
+        <a href="setup.bat" download class="download-btn">⬇ 다운로드</a>
+      </a>
+
+      <a href="library_auto.py" download class="download-card secondary">
+        <div class="file-icon green">🤖</div>
+        <div class="file-info">
+          <div class="file-name">library_auto.py</div>
+          <div class="file-desc">자동화 실행 스크립트 · 독서로 계정 정보만 입력하면 됩니다</div>
+        </div>
+        <span class="file-tag tag-reuse">재사용</span>
+        <a href="library_auto.py" download class="download-btn">⬇ 다운로드</a>
+      </a>
+    </div>
+
+    <div class="notice-box warn" style="margin-top:16px;">
+      <span>⚠️</span>
+      <span><strong>oauth_credentials.json</strong> 파일은 구글 계정 설정 후 직접 발급받아야 합니다. 매뉴얼 STEP 2를 참고하세요.</span>
+    </div>
+  </div>
+
+  <!-- 매뉴얼 섹션 -->
+  <div class="section manual-section">
+    <div class="section-header">
+      <div class="section-num green">3</div>
+      <div>
+        <div class="section-title">설치 매뉴얼</div>
+        <div class="section-desc">처음 설치와 인사이동 시 설정 방법</div>
+      </div>
+    </div>
+
+    <div class="manual-tabs">
+      <button class="tab-btn active" onclick="switchTab('first')">🔵 최초 1회 설치</button>
+      <button class="tab-btn" onclick="switchTab('move')">🟢 인사이동 시 (5분 완료)</button>
+      <button class="tab-btn" onclick="switchTab('trouble')">🔧 문제 해결</button>
+    </div>
+
+    <!-- 최초 설치 -->
+    <div class="tab-content active" id="tab-first">
+      <div class="manual-card">
+        <h3>STEP 1. setup.bat 실행</h3>
+        <ul class="step-list">
+          <li class="step-item">
+            <div class="step-num">1</div>
+            <div class="step-text">위에서 파일 3개를 모두 <strong>바탕화면</strong>에 다운로드</div>
+          </li>
+          <li class="step-item">
+            <div class="step-num">2</div>
+            <div class="step-text"><strong>setup.bat</strong> 더블클릭</div>
+          </li>
+          <li class="step-item">
+            <div class="step-num">3</div>
+            <div class="step-text">"이 앱이 디바이스를 변경하도록 허용하시겠어요?" → <strong>[예]</strong> 클릭</div>
+          </li>
+          <li class="step-item">
+            <div class="step-num">4</div>
+            <div class="step-text">Python 설치 창이 뜨면 맨 아래 <strong>[Add Python to PATH]</strong> 체크 후 <strong>[Install Now]</strong></div>
+          </li>
+          <li class="step-item">
+            <div class="step-num">5</div>
+            <div class="step-text">모든 완료 메시지 확인 후 아무 키나 눌러서 창 닫기</div>
+          </li>
+        </ul>
+        <div class="notice-box warn">
+          <span>⚠️</span>
+          <span><strong>Add Python to PATH</strong> 체크를 반드시 해야 합니다!</span>
+        </div>
+
+        <hr class="divider">
+
+        <h3>STEP 2. 구글 계정 설정</h3>
+        <ul class="step-list">
+          <li class="step-item">
+            <div class="step-num">1</div>
+            <div class="step-text"><a href="https://console.cloud.google.com" target="_blank" style="color:var(--accent)">console.cloud.google.com</a> 접속 → 구글 계정 로그인</div>
+          </li>
+          <li class="step-item">
+            <div class="step-num">2</div>
+            <div class="step-text"><strong>[새 프로젝트]</strong> 만들기 → 이름: <code>도서관자동화</code></div>
+          </li>
+          <li class="step-item">
+            <div class="step-num">3</div>
+            <div class="step-text"><strong>[API 및 서비스] → [라이브러리]</strong> 에서 <code>Google Drive API</code>, <code>Google Sheets API</code> 각각 검색 후 <strong>[사용]</strong> 클릭</div>
+          </li>
+          <li class="step-item">
+            <div class="step-num">4</div>
+            <div class="step-text"><strong>[OAuth 동의 화면]</strong> → 외부 선택 → 앱 이름 <code>도서관자동화</code> → 이메일 입력 → 저장 → 테스트 사용자에 본인 이메일 추가</div>
+          </li>
+          <li class="step-item">
+            <div class="step-num">5</div>
+            <div class="step-text"><strong>[사용자 인증 정보] → [OAuth 클라이언트 ID]</strong> → 데스크톱 앱 → <strong>[JSON 다운로드]</strong> → 파일명을 <code>oauth_credentials.json</code> 으로 변경 후 바탕화면에 저장</div>
+          </li>
+          <li class="step-item">
+            <div class="step-num">6</div>
+            <div class="step-text"><a href="https://drive.google.com" target="_blank" style="color:var(--accent)">drive.google.com</a> → 새 폴더 <code>도서관자동화</code> 만들기 → 폴더 열고 주소창에서 <strong>폴더ID</strong> 복사</div>
+          </li>
+          <li class="step-item">
+            <div class="step-num">7</div>
+            <div class="step-text">폴더 안에서 새 스프레드시트 <code>도서목록</code> 만들기 → 주소창에서 <strong>시트ID</strong> 복사</div>
+          </li>
+        </ul>
+
+        <hr class="divider">
+
+        <h3>STEP 3. 내 정보 입력</h3>
+        <ul class="step-list">
+          <li class="step-item">
+            <div class="step-num">1</div>
+            <div class="step-text"><code>library_auto.py</code> 우클릭 → <strong>[메모장으로 열기]</strong></div>
+          </li>
+          <li class="step-item">
+            <div class="step-num">2</div>
+            <div class="step-text">파일 맨 위 4줄 수정:<br>
+              <code>아이디 = "독서로아이디"</code><br>
+              <code>비밀번호 = "독서로비밀번호"</code><br>
+              <code>FOLDER_ID = "구글드라이브폴더ID"</code><br>
+              <code>SHEET_ID = "구글시트ID"</code>
+            </div>
+          </li>
+          <li class="step-item">
+            <div class="step-num">3</div>
+            <div class="step-text"><strong>Ctrl+S</strong> 로 저장</div>
+          </li>
+        </ul>
+
+        <hr class="divider">
+
+        <h3>STEP 4. 첫 실행 및 구글 인증</h3>
+        <ul class="step-list">
+          <li class="step-item">
+            <div class="step-num">1</div>
+            <div class="step-text">윈도우 검색창에 <code>cmd</code> 입력 후 실행</div>
+          </li>
+          <li class="step-item">
+            <div class="step-num">2</div>
+            <div class="step-text"><code>cd Desktop</code> 입력 후 엔터</div>
+          </li>
+          <li class="step-item">
+            <div class="step-num">3</div>
+            <div class="step-text"><code>python library_auto.py</code> 입력 후 엔터</div>
+          </li>
+          <li class="step-item">
+            <div class="step-num">4</div>
+            <div class="step-text">브라우저가 열리면 구글 로그인 → <strong>[고급]</strong> → <strong>[도서관자동화으로 이동]</strong> → <strong>[허용]</strong></div>
+          </li>
+        </ul>
+        <div class="notice-box tip">
+          <span>💡</span>
+          <span>구글 인증은 최초 1회만 합니다. 이후에는 자동으로 인증됩니다!</span>
+        </div>
+        <div class="notice-box success">
+          <span>✅</span>
+          <span>🎉 모든 작업 완료! 메시지가 뜨면 성공입니다. 이제 1시간마다 자동으로 실행됩니다!</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 인사이동 -->
+    <div class="tab-content" id="tab-move">
+      <div class="manual-card">
+        <div class="notice-box success" style="margin-bottom:24px;">
+          <span>🟢</span>
+          <span><strong>json 파일만 있으면 5분이면 끝납니다!</strong> 구글 계정 설정은 다시 하지 않아도 됩니다.</span>
+        </div>
+
+        <h3>새 PC에서 할 일 (4단계)</h3>
+        <ul class="step-list">
+          <li class="step-item">
+            <div class="step-num">1</div>
+            <div class="step-text">이 페이지에서 파일 3개 다운로드 + 보관 중인 <code>oauth_credentials.json</code> 을 바탕화면에 저장</div>
+          </li>
+          <li class="step-item">
+            <div class="step-num">2</div>
+            <div class="step-text"><strong>setup.bat</strong> 더블클릭 → Python 설치 + 라이브러리 설치 + 스케줄러 등록 자동 완료</div>
+          </li>
+          <li class="step-item">
+            <div class="step-num">3</div>
+            <div class="step-text"><code>library_auto.py</code> 메모장으로 열어서 <strong>독서로 아이디/비밀번호만</strong> 새 학교 계정으로 수정 → <strong>Ctrl+S</strong> 저장</div>
+          </li>
+          <li class="step-item">
+            <div class="step-num">4</div>
+            <div class="step-text">cmd에서 <code>python library_auto.py</code> 실행 → 구글 인증 한번만</div>
+          </li>
+        </ul>
+
+        <div class="notice-box tip">
+          <span>💡</span>
+          <span><strong>FOLDER_ID, SHEET_ID는 그대로!</strong> 기존 구글 드라이브와 시트를 계속 사용합니다.</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 문제 해결 -->
+    <div class="tab-content" id="tab-trouble">
+      <div class="manual-card">
+        <h3>자주 발생하는 문제</h3>
+
+        <ul class="step-list">
+          <li class="step-item">
+            <div class="step-num">Q</div>
+            <div class="step-text"><strong>setup.bat 실행이 안 돼요</strong><br>
+              <span style="color:var(--text2)">→ 우클릭 후 [관리자 권한으로 실행]</span>
+            </div>
+          </li>
+          <li class="step-item">
+            <div class="step-num">Q</div>
+            <div class="step-text"><strong>Python 설치 후에도 오류가 나요</strong><br>
+              <span style="color:var(--text2)">→ python-installer.exe 다시 실행 → [Modify] → [Add Python to PATH] 체크</span>
+            </div>
+          </li>
+          <li class="step-item">
+            <div class="step-num">Q</div>
+            <div class="step-text"><strong>구글 인증이 계속 실패해요</strong><br>
+              <span style="color:var(--text2)">→ 바탕화면의 token.json 삭제 후 다시 실행</span>
+            </div>
+          </li>
+          <li class="step-item">
+            <div class="step-num">Q</div>
+            <div class="step-text"><strong>독서로 로그인이 안 돼요</strong><br>
+              <span style="color:var(--text2)">→ 아이디/비밀번호 확인, 학교 방화벽 문의</span>
+            </div>
+          </li>
+          <li class="step-item">
+            <div class="step-num">Q</div>
+            <div class="step-text"><strong>작업 스케줄러에 도서관자동화가 없어요</strong><br>
+              <span style="color:var(--text2)">→ setup.bat 을 관리자 권한으로 다시 실행</span>
+            </div>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- USB 보관 안내 -->
+  <div class="usb-card">
+    <div class="usb-header">
+      <span style="font-size:28px;">💾</span>
+      <div>
+        <h2>보관해야 할 파일</h2>
+        <p>인사이동 시 아래 파일만 있으면 어느 PC에서든 5분 안에 설정 완료!</p>
+      </div>
+    </div>
+    <div class="usb-files">
+      <div class="usb-file">
+        <span>🔑</span>
+        <span class="fname">oauth_credentials.json</span>
+        <span class="fdesc">구글 인증 키 · 절대 삭제 금지! · 이것만 있으면 됩니다</span>
+      </div>
+      <div class="usb-file">
+        <span>📝</span>
+        <span class="fname">library_auto.py</span>
+        <span class="fdesc">내 정보 입력된 스크립트 · 또는 이 페이지에서 다시 다운로드</span>
+      </div>
+      <div class="usb-file" style="opacity:0.5;">
+        <span>🐍</span>
+        <span class="fname">python-installer.exe</span>
+        <span class="fdesc">선택사항 · 이 페이지에서 언제든 다운로드 가능</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- 푸터 -->
+  <div class="footer">
+    <p>문의사항이 있으시면 Claude에게 물어보세요 😊</p>
+    <p style="margin-top:8px; font-size:11px; opacity:0.5;">School Library Automation System · drm815</p>
+  </div>
+
+</div>
+
+<script>
+function switchTab(tab) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+  document.getElementById('tab-' + tab).classList.add('active');
+  event.target.classList.add('active');
+}
+</script>
+</body>
+</html>
