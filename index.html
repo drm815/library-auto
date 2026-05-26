@@ -196,31 +196,31 @@
     </div>
     <div class="notice-box warn" style="margin-top:16px;">
       <span>⚠️</span>
-      <span><strong>oauth_credentials.json</strong> 파일은 구글 계정 설정 후 직접 발급받아야 합니다. 아래 매뉴얼 STEP 2를 참고하세요.</span>
+      <span><strong>service_account.json</strong> 파일은 구글 계정 설정 후 직접 발급받아야 합니다. 아래 매뉴얼 STEP 2를 참고하세요.</span>
     </div>
   </div>
 
-  <!-- oauth_credentials.json 중요성 -->
+  <!-- service_account.json 중요성 -->
   <div class="json-card">
     <div class="json-header">
       <div class="json-icon">🔑</div>
       <div>
-        <h2>oauth_credentials.json 파일이란?</h2>
-        <p>반드시 보관해야 하는 구글 인증 키입니다</p>
+        <h2>service_account.json 파일이란?</h2>
+        <p>반드시 보관해야 하는 구글 서비스 계정 키입니다</p>
       </div>
     </div>
     <div style="font-size:13px; line-height:1.7; color:var(--text2); margin-bottom:16px;">
-      구글은 보안상 아무 프로그램이나 구글 드라이브와 시트에 접근하도록 허용하지 않습니다. 이 파일은 구글이 발급해준 <strong style="color:var(--text);">허가증</strong>으로, 이 파일이 있어야만 자동화 프로그램이 구글 드라이브에 파일을 올리고 시트를 업데이트할 수 있습니다.
+      구글은 보안상 아무 프로그램이나 구글 드라이브와 시트에 접근하도록 허용하지 않습니다. 서비스 계정은 구글이 발급해준 <strong style="color:var(--text);">전용 로봇 계정</strong>으로, 브라우저 인증 없이 자동화 프로그램이 24시간 구글 드라이브와 시트에 접근할 수 있게 해줍니다.
     </div>
     <div class="notice-box critical">
       <span>🚨</span>
-      <span>이 파일을 잃어버리면 Google Cloud Console에서 OAuth 클라이언트 ID를 새로 만들고 JSON 파일을 다시 발급받아야 합니다. 번거로운 과정이므로 반드시 안전하게 보관하세요!</span>
+      <span>이 파일을 잃어버리면 Google Cloud Console에서 서비스 계정 키를 새로 발급받아야 합니다. 반드시 안전하게 보관하세요!</span>
     </div>
     <div class="json-points">
-      <div class="json-point"><div class="dot"></div><div>같은 구글 계정을 유지하는 한 <strong>평생 한 번만</strong> 발급받으면 됩니다</div></div>
+      <div class="json-point"><div class="dot"></div><div>브라우저 인증창이 뜨지 않습니다 · <strong>완전한 무인 자동화</strong>가 가능합니다</div></div>
       <div class="json-point"><div class="dot"></div><div>어느 학교로 이동해도 이 파일 하나만 있으면 <strong>구글 설정을 다시 할 필요 없습니다</strong></div></div>
-      <div class="json-point"><div class="dot"></div><div>파일 이름 변경 금지 · 반드시 <code style="font-family:monospace; background:var(--surface2); padding:2px 6px; border-radius:4px;">oauth_credentials.json</code> 그대로 유지</div></div>
-      <div class="json-point"><div class="dot"></div><div>타인과 공유 금지 · 본인 구글 계정 접근 권한이 담긴 파일</div></div>
+      <div class="json-point"><div class="dot"></div><div>파일 이름 변경 금지 · 반드시 <code style="font-family:monospace; background:var(--surface2); padding:2px 6px; border-radius:4px;">service_account.json</code> 그대로 유지</div></div>
+      <div class="json-point"><div class="dot"></div><div>타인과 공유 금지 · 구글 드라이브/시트 접근 권한이 담긴 파일</div></div>
     </div>
   </div>
 
@@ -276,26 +276,43 @@
 
         <hr class="divider">
 
-        <h3>STEP 2. 구글 계정 설정</h3>
+        <h3>STEP 2. 구글 서비스 계정 설정</h3>
         <ul class="step-list">
           <li class="step-item"><div class="step-num">1</div><div class="step-text"><a href="https://console.cloud.google.com" target="_blank" style="color:var(--accent)">console.cloud.google.com</a> 접속 → 구글 계정 로그인</div></li>
           <li class="step-item"><div class="step-num">2</div><div class="step-text"><strong>[새 프로젝트]</strong> 만들기 → 이름: <code>도서관자동화</code></div></li>
           <li class="step-item"><div class="step-num">3</div><div class="step-text"><strong>[API 및 서비스] → [라이브러리]</strong> 에서 <code>Google Drive API</code>, <code>Google Sheets API</code> 각각 검색 후 <strong>[사용]</strong> 클릭</div></li>
-          <li class="step-item"><div class="step-num">4</div><div class="step-text"><strong>[OAuth 동의 화면]</strong> → 외부 선택 → 앱 이름 <code>도서관자동화</code> → 이메일 입력 → 저장 → 테스트 사용자에 본인 이메일 추가</div></li>
-          <li class="step-item"><div class="step-num">5</div><div class="step-text"><strong>[사용자 인증 정보] → [OAuth 클라이언트 ID]</strong> → 데스크톱 앱 → <strong>[JSON 다운로드]</strong> → 파일명을 <code>oauth_credentials.json</code> 으로 변경 후 바탕화면에 저장</div></li>
+          <li class="step-item"><div class="step-num">4</div><div class="step-text">
+            <strong>[IAM 및 관리자] → [서비스 계정]</strong> 클릭 → <strong>[+ 서비스 계정 만들기]</strong><br>
+            서비스 계정 이름: <code>library-auto</code> → <strong>[만들기 및 계속]</strong> → <strong>[완료]</strong>
+          </div></li>
+          <li class="step-item"><div class="step-num">5</div><div class="step-text">
+            방금 만든 서비스 계정 클릭 → <strong>[키]</strong> 탭 → <strong>[키 추가] → [새 키 만들기]</strong> → <strong>JSON</strong> 선택 → <strong>[만들기]</strong><br>
+            JSON 파일이 자동 다운로드됩니다. 파일명을 <code>service_account.json</code> 으로 변경 후 바탕화면에 저장
+          </div></li>
           <li class="step-item"><div class="step-num">6</div><div class="step-text">
+            다운로드된 <code>service_account.json</code> 파일을 메모장으로 열어서 <code>client_email</code> 값을 복사해두세요.<br>
+            <code style="display:block; margin:8px 0; padding:8px 12px; background:var(--surface2); border-radius:6px; font-size:12px;">"client_email": "<strong style="color:var(--danger);">library-auto@도서관자동화.iam.gserviceaccount.com</strong>"</code>
+            이 이메일 주소가 구글 드라이브·시트 공유에 필요합니다.
+          </div></li>
+          <li class="step-item"><div class="step-num">7</div><div class="step-text">
             <a href="https://drive.google.com" target="_blank" style="color:var(--accent)">drive.google.com</a> 접속 → <strong>[+ 새로 만들기] → [폴더]</strong> 클릭 → 이름: <code>도서관자동화</code> → <strong>[만들기]</strong><br><br>
             만든 폴더를 더블클릭해서 열기 → 주소창 URL 확인:<br>
             <code style="display:block; margin:8px 0; padding:8px 12px; background:var(--surface2); border-radius:6px; font-size:12px;">https://drive.google.com/drive/folders/<strong style="color:var(--danger);">1ct-7HNMp612CUCRCT3r7MTkUVe2rHwly</strong></code>
-            <code>folders/</code> 뒤의 긴 문자열이 <strong>폴더ID</strong>입니다. 복사해서 메모해두세요!
+            <code>folders/</code> 뒤의 긴 문자열이 <strong>폴더ID</strong>입니다. 복사해서 메모해두세요!<br><br>
+            폴더에서 우클릭 → <strong>[공유]</strong> → 6번에서 복사한 <strong>서비스 계정 이메일</strong> 입력 → 권한: <strong>편집자</strong> → <strong>[보내기]</strong>
           </div></li>
-          <li class="step-item"><div class="step-num">7</div><div class="step-text">
+          <li class="step-item"><div class="step-num">8</div><div class="step-text">
             폴더 안에서 <strong>[+ 새로 만들기] → [Google 스프레드시트]</strong> 클릭 → 시트 제목을 <code>도서목록</code> 으로 변경<br><br>
             주소창 URL 확인:<br>
             <code style="display:block; margin:8px 0; padding:8px 12px; background:var(--surface2); border-radius:6px; font-size:12px;">https://docs.google.com/spreadsheets/d/<strong style="color:var(--danger);">1C2zISnzGyrxeOCHih5o-dW423ralnI1lvqGtBwwJWNk</strong>/edit</code>
-            <code>/d/</code> 와 <code>/edit</code> 사이의 긴 문자열이 <strong>시트ID</strong>입니다. 복사해서 메모해두세요!
+            <code>/d/</code> 와 <code>/edit</code> 사이의 긴 문자열이 <strong>시트ID</strong>입니다. 복사해서 메모해두세요!<br><br>
+            시트 우측 상단 <strong>[공유]</strong> → 6번에서 복사한 <strong>서비스 계정 이메일</strong> 입력 → 권한: <strong>편집자</strong> → <strong>[보내기]</strong>
           </div></li>
         </ul>
+        <div class="notice-box tip">
+          <span>💡</span>
+          <span>서비스 계정에 드라이브 폴더와 스프레드시트 모두 <strong>편집자</strong> 권한으로 공유해야 합니다. 하나라도 빠지면 오류가 납니다!</span>
+        </div>
 
         <hr class="divider">
 
@@ -313,30 +330,31 @@
 
         <hr class="divider">
 
-        <h3>STEP 4. 첫 실행 및 구글 인증</h3>
+        <h3>STEP 4. 첫 실행</h3>
         <ul class="step-list">
           <li class="step-item"><div class="step-num">1</div><div class="step-text">윈도우 검색창에 <code>cmd</code> 입력 후 실행</div></li>
           <li class="step-item"><div class="step-num">2</div><div class="step-text"><code>cd Desktop</code> 입력 후 엔터</div></li>
           <li class="step-item"><div class="step-num">3</div><div class="step-text"><code>python library_auto.py</code> 입력 후 엔터</div></li>
-          <li class="step-item"><div class="step-num">4</div><div class="step-text">브라우저가 열리면 구글 로그인 → <strong>[고급]</strong> → <strong>[도서관자동화으로 이동]</strong> → <strong>[허용]</strong></div></li>
         </ul>
-        <div class="notice-box tip"><span>💡</span><span>구글 인증은 최초 1회만 합니다. 이후에는 자동으로 인증됩니다!</span></div>
-        <div class="notice-box success"><span>✅</span><span>🎉 모든 작업 완료! 메시지가 뜨면 성공입니다. 이제 1시간마다 백그라운드에서 자동 실행됩니다!</span></div>
+        <div class="notice-box success">
+          <span>✅</span>
+          <span>서비스 계정 방식은 브라우저 인증창이 뜨지 않습니다! 바로 실행되어 🎉 모든 작업 완료! 메시지가 뜨면 성공입니다. 이제 1시간마다 백그라운드에서 자동 실행됩니다!</span>
+        </div>
       </div>
     </div>
 
     <!-- 인사이동 -->
     <div class="tab-content" id="tab-move">
       <div class="manual-card">
-        <div class="notice-box success" style="margin-bottom:24px;"><span>🟢</span><span><strong>oauth_credentials.json 파일만 있으면 5분이면 끝납니다!</strong> 구글 계정 설정은 다시 하지 않아도 됩니다.</span></div>
+        <div class="notice-box success" style="margin-bottom:24px;"><span>🟢</span><span><strong>service_account.json 파일만 있으면 5분이면 끝납니다!</strong> 구글 계정 설정은 다시 하지 않아도 됩니다.</span></div>
         <h3>새 PC에서 할 일 (4단계)</h3>
         <ul class="step-list">
           <li class="step-item"><div class="step-num">1</div><div class="step-text">보관 중인 파일 4개를 새 PC 바탕화면에 복사<br>
-            <code>oauth_credentials.json</code> · <code>library_auto.py</code> · <code>setup.bat</code> · <code>python-installer.exe</code>
+            <code>service_account.json</code> · <code>library_auto.py</code> · <code>setup.bat</code> · <code>python-installer.exe</code>
           </div></li>
           <li class="step-item"><div class="step-num">2</div><div class="step-text"><strong>setup.bat</strong> 더블클릭 → Python 설치 + 라이브러리 설치 + 백그라운드 설정 + 스케줄러 등록 자동 완료</div></li>
           <li class="step-item"><div class="step-num">3</div><div class="step-text"><code>library_auto.py</code> 메모장으로 열어서 <strong>독서로 아이디/비밀번호만</strong> 새 학교 계정으로 수정 → <strong>Ctrl+S</strong> 저장</div></li>
-          <li class="step-item"><div class="step-num">4</div><div class="step-text">cmd에서 <code>python library_auto.py</code> 실행 → 구글 인증 한번만</div></li>
+          <li class="step-item"><div class="step-num">4</div><div class="step-text">cmd에서 <code>python library_auto.py</code> 실행 → 바로 완료! (브라우저 인증 없음)</div></li>
         </ul>
         <div class="notice-box tip"><span>💡</span><span><strong>FOLDER_ID, SHEET_ID는 그대로!</strong> 기존 구글 드라이브와 시트를 계속 사용합니다.</span></div>
       </div>
@@ -349,10 +367,10 @@
         <ul class="step-list">
           <li class="step-item"><div class="step-num">Q</div><div class="step-text"><strong>setup.bat 실행이 안 돼요</strong><br><span style="color:var(--text2)">→ 우클릭 후 [관리자 권한으로 실행]</span></div></li>
           <li class="step-item"><div class="step-num">Q</div><div class="step-text"><strong>Python 설치 후에도 오류가 나요</strong><br><span style="color:var(--text2)">→ python-installer.exe 다시 실행 → [Modify] → [Add Python to PATH] 체크</span></div></li>
-          <li class="step-item"><div class="step-num">Q</div><div class="step-text"><strong>구글 인증이 계속 실패해요</strong><br><span style="color:var(--text2)">→ 바탕화면의 token.json 삭제 후 다시 실행</span></div></li>
+          <li class="step-item"><div class="step-num">Q</div><div class="step-text"><strong>구글 드라이브/시트 접근 오류가 나요</strong><br><span style="color:var(--text2)">→ service_account.json의 client_email을 드라이브 폴더와 스프레드시트에 <strong>편집자</strong> 권한으로 공유했는지 확인</span></div></li>
           <li class="step-item"><div class="step-num">Q</div><div class="step-text"><strong>독서로 로그인이 안 돼요</strong><br><span style="color:var(--text2)">→ 아이디/비밀번호 확인 · 소장자료관리 권한 확인 · 학교 방화벽 문의</span></div></li>
           <li class="step-item"><div class="step-num">Q</div><div class="step-text"><strong>작업 스케줄러에 도서관자동화가 없어요</strong><br><span style="color:var(--text2)">→ setup.bat 을 관리자 권한으로 다시 실행</span></div></li>
-          <li class="step-item"><div class="step-num">Q</div><div class="step-text"><strong>oauth_credentials.json 파일을 잃어버렸어요</strong><br><span style="color:var(--text2)">→ console.cloud.google.com 접속 → [사용자 인증 정보] → 기존 OAuth 클라이언트 ID 옆 다운로드 버튼 클릭 → 파일명 oauth_credentials.json 으로 변경</span></div></li>
+          <li class="step-item"><div class="step-num">Q</div><div class="step-text"><strong>service_account.json 파일을 잃어버렸어요</strong><br><span style="color:var(--text2)">→ console.cloud.google.com 접속 → [IAM 및 관리자] → [서비스 계정] → 해당 서비스 계정 클릭 → [키] 탭 → [키 추가] → [새 키 만들기] → JSON → 파일명 service_account.json 으로 변경</span></div></li>
         </ul>
       </div>
     </div>
@@ -370,8 +388,8 @@
     <div class="usb-files">
       <div class="usb-file critical">
         <span>🚨</span>
-        <span class="fname">oauth_credentials.json</span>
-        <span class="fdesc">구글 인증 키 · 절대 필수! · 잃어버리면 재발급 필요</span>
+        <span class="fname">service_account.json</span>
+        <span class="fdesc">구글 서비스 계정 키 · 절대 필수! · 잃어버리면 재발급 필요</span>
       </div>
       <div class="usb-file critical">
         <span>📝</span>
