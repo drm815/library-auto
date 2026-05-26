@@ -5,32 +5,23 @@ import time
 from datetime import datetime
 
 # ============================================================
-# ★★★ 여기만 본인 정보로 수정하세요 ★★★
-# ============================================================
 아이디 = ""
 비밀번호 = ""
 FOLDER_ID = ""
 SHEET_ID = ""
+SERVICE_ACCOUNT_FILE = os.path.join(os.path.expanduser("~"), "Desktop", "service_account.json")
 # ============================================================
 
-# 파일 경로 설정
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
-OAUTH_FILE = os.path.join(os.path.expanduser("~"), "Desktop", "oauth_credentials.json")
-TOKEN_FILE = os.path.join(os.path.expanduser("~"), "Desktop", "token.json")
 DOWNLOAD_DIR = os.path.join(os.path.expanduser("~"), "Downloads")
 SCOPES = [
     "https://www.googleapis.com/auth/drive",
     "https://www.googleapis.com/auth/spreadsheets"
 ]
 
-# 로그 설정
 LOG_FILE = os.path.join(SCRIPT_DIR, "library_auto_log.txt")
-logging.basicConfig(
-    filename=LOG_FILE,
-    level=logging.INFO,
-    format="%(asctime)s %(message)s",
-    encoding="utf-8"
-)
+logging.basicConfig(filename=LOG_FILE, level=logging.INFO,
+                    format="%(asctime)s %(message)s", encoding="utf-8")
 def log(msg):
     print(msg)
     logging.info(msg)
@@ -47,49 +38,37 @@ try:
     from webdriver_manager.chrome import ChromeDriverManager
     from googleapiclient.discovery import build
     from googleapiclient.http import MediaFileUpload
-    from google.oauth2.credentials import Credentials
-    from google_auth_oauthlib.flow import InstalledAppFlow
-    from google.auth.transport.requests import Request
+    from google.oauth2 import service_account
     import gspread
     import pandas as pd
 
-    # Google 인증
+    # Google 인증 (서비스 계정)
     log("\n🔐 Google 인증 중...")
-    creds = None
-    if os.path.exists(TOKEN_FILE):
-        creds = Credentials.from_authorized_user_file(TOKEN_FILE, SCOPES)
-    if not creds or not creds.valid:
-        if creds and creds.expired and creds.refresh_token:
-            creds.refresh(Request())
-        else:
-            flow = InstalledAppFlow.from_client_secrets_file(OAUTH_FILE, SCOPES)
-            creds = flow.run_local_server(port=0)
-        with open(TOKEN_FILE, "w") as token:
-            token.write(creds.to_json())
+    creds = service_account.Credentials.from_service_account_file(
+        SERVICE_ACCOUNT_FILE, scopes=SCOPES
+    )
     log("✅ Google 인증 완료!")
 
-    # 크롬 드라이버 준비
     log("\n🌐 크롬 드라이버 준비 중...")
     options = webdriver.ChromeOptions()
     prefs = {"download.default_directory": DOWNLOAD_DIR, "download.prompt_for_download": False}
     options.add_experimental_option("prefs", prefs)
-    options.add_argument("--headless")
+    options.add_argument("--headless=new")
     options.add_argument("--no-sandbox")
     options.add_argument("--disable-dev-shm-usage")
     options.add_argument("--window-size=1920,1080")
-    driver = webdriver.Chrome(
-        service=Service(ChromeDriverManager().install()),
-        options=options
-    )
+    driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
+    driver.execute_cdp_cmd("Browser.setDownloadBehavior", {
+        "behavior": "allow",
+        "downloadPath": DOWNLOAD_DIR
+    })
     log("✅ 크롬 드라이버 준비 완료!")
 
     try:
-        # 독서로 접속
+        # 로그인
         log("\n🌐 독서로 접속 중...")
         driver.get("https://dls2.edunet.net/DLS/loginMain")
         time.sleep(3)
-
-        # 로그인
         driver.execute_script("document.getElementById('selectArea').style.display='block'")
         time.sleep(1)
         driver.execute_script("""
@@ -105,6 +84,39 @@ try:
         time.sleep(1)
         driver.find_element(By.ID, "loginBtn").click()
         time.sleep(8)
+
+        # 세션 중복 처리
+        if "totalLogin" in driver.current_url or "loginMain" in driver.current_url:
+            log("⚠️ 세션 중복 감지 — 기존 세션 종료 시도...")
+            for btn in driver.find_elements(By.TAG_NAME, "button"):
+                if btn.text.strip() in ["예", "확인", "예(Y)", "로그인"]:
+                    driver.execute_script("arguments[0].click();", btn)
+                    log(f"  → [{btn.text.strip()}] 클릭!")
+                    break
+            time.sleep(5)
+
+            if "totalLogin" in driver.current_url or "loginMain" in driver.current_url:
+                driver.get("https://dls2.edunet.net/DLS/loginMain")
+                time.sleep(3)
+                driver.execute_script("document.getElementById('selectArea').style.display='block'")
+                time.sleep(1)
+                driver.execute_script("""
+                    var select = document.getElementById('prov_code');
+                    select.value = 'D10';
+                    var event = new Event('change');
+                    select.dispatchEvent(event);
+                """)
+                time.sleep(2)
+                driver.find_element(By.ID, "lgID").send_keys(아이디)
+                time.sleep(1)
+                driver.find_element(By.ID, "lgPW").send_keys(비밀번호)
+                time.sleep(1)
+                driver.find_element(By.ID, "loginBtn").click()
+                time.sleep(8)
+
+        if "totalLogin" in driver.current_url or "loginMain" in driver.current_url:
+            raise Exception("로그인 실패 — 세션 중복 해소 불가")
+
         log(f"✅ 로그인 완료! 현재 URL: {driver.current_url}")
 
         # 소장자료관리 이동
@@ -113,7 +125,7 @@ try:
         time.sleep(8)
         log(f"✅ 자료관리 이동 완료! 현재 URL: {driver.current_url}")
 
-        # 검색 버튼 클릭
+        # 검색
         buttons = driver.find_elements(By.TAG_NAME, "button")
         clicked = False
         for btn in buttons:
@@ -135,7 +147,7 @@ try:
         time.sleep(10)
         log("✅ 페이지 사이즈 변경 완료!")
 
-        # 반출 버튼 클릭
+        # 반출
         buttons = driver.find_elements(By.TAG_NAME, "button")
         clicked = False
         for btn in buttons:
@@ -169,12 +181,11 @@ try:
                 break
 
     if not downloaded_file:
-        log("❌ 다운로드 파일 없음! (최근 5분 내 xlsx 없음)")
+        log("❌ 다운로드 파일 없음!")
         sys.exit(1)
 
     log(f"✅ 다운로드 파일 확인: {downloaded_file}")
 
-    # 파일 이름 변경
     new_name = f"도서목록_{today}.xlsx"
     new_path = os.path.join(DOWNLOAD_DIR, new_name)
     os.rename(downloaded_file, new_path)
@@ -192,10 +203,8 @@ try:
         log("🗑️ 기존 파일 삭제!")
 
     file_metadata = {"name": "도서목록_최신.xlsx", "parents": [FOLDER_ID]}
-    media = MediaFileUpload(
-        new_path,
-        mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-    )
+    media = MediaFileUpload(new_path,
+        mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
     drive_service.files().create(body=file_metadata, media_body=media, fields="id").execute()
     log("✅ Google Drive 업로드 완료!")
 
@@ -207,11 +216,10 @@ try:
     gc = gspread.authorize(creds)
     sh = gc.open_by_key(SHEET_ID)
     worksheet = sh.worksheet("도서목록")
-
     worksheet.clear()
     data = [df.columns.tolist()] + df.values.tolist()
     data = [[str(cell) for cell in row] for row in data]
-    worksheet.update("A1", data)
+    worksheet.update(range_name="A1", values=data)
 
     log(f"✅ Google Sheets 업데이트 완료! 총 {len(df)}행")
     log("=" * 50)
@@ -223,4 +231,3 @@ except Exception as e:
     import traceback
     logging.error(traceback.format_exc())
     sys.exit(1)
-print("=" * 50)
